@@ -14,6 +14,12 @@ def generate_launch_description():
     port = LaunchConfiguration('port')
     retry_startup_delay = LaunchConfiguration('retry_startup_delay')
     max_message_size = LaunchConfiguration('max_message_size')
+    fragment_timeout = LaunchConfiguration('fragment_timeout')
+    delay_between_messages = LaunchConfiguration('delay_between_messages')
+    unregister_timeout = LaunchConfiguration('unregister_timeout')
+    use_compression = LaunchConfiguration('use_compression')
+    bson_only_mode = LaunchConfiguration('bson_only_mode')
+
     declare_namespace_cmd = DeclareLaunchArgument(
         'namespace',
         default_value='',
@@ -34,10 +40,35 @@ def generate_launch_description():
         default_value='5.0',
         description="retry_startup_delay")
 
+    declare_fragment_timeout_cmd = DeclareLaunchArgument(
+        'fragment_timeout',
+        default_value='600',
+        description="fragment_timeout")
+
     declare_max_message_size_cmd = DeclareLaunchArgument(
         'max_message_size',
         default_value='10000000',
         description="max_message_size")
+
+    declare_unregister_timeout_cmd = DeclareLaunchArgument(
+        'unregister_timeout',
+        default_value='10.0',
+        description="unregister_timeout")
+
+    declare_delay_between_messages_cmd = DeclareLaunchArgument(
+        'delay_between_messages',
+        default_value='10000000',
+        description="delay_between_messages")
+
+    declare_use_compression_cmd = DeclareLaunchArgument(
+        'use_compression',
+        default_value='false',
+        description="use_compression")
+
+    declare_bson_only_mode_cmd = DeclareLaunchArgument(
+        'bson_only_mode',
+        default_value='false',
+        description="bson_only_mode")
 
 
     start_websocket_cmd = Node(
@@ -48,7 +79,12 @@ def generate_launch_description():
         output='screen',
         parameters=[{'port': port,
                      'retry_startup_delay': retry_startup_delay,
-                     'max_message_size': max_message_size,}])
+                     'max_message_size': max_message_size,
+                     'fragment_timeout' : fragment_timeout,
+                     'delay_between_messages' : delay_between_messages,
+                     'unregister_timeout' : unregister_timeout,
+                     'use_compression': use_compression,
+                     'bson_only_mode' : bson_only_mode}])
     
     return LaunchDescription([
         declare_namespace_cmd,
@@ -56,5 +92,10 @@ def generate_launch_description():
         declare_port_cmd,
         declare_retry_startup_delay_cmd,
         declare_max_message_size_cmd,
+        declare_bson_only_mode_cmd,
+        declare_use_compression_cmd,
+        declare_delay_between_messages_cmd,
+        declare_unregister_timeout_cmd,
+        declare_fragment_timeout_cmd,
         start_websocket_cmd
     ])
