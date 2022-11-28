@@ -11,6 +11,7 @@ from launch.conditions import IfCondition
 def generate_launch_description():
     namespace = LaunchConfiguration('namespace')
     use_namespace = LaunchConfiguration('use_namespace')
+    address = LaunchConfiguration('address')
     port = LaunchConfiguration('port')
     retry_startup_delay = LaunchConfiguration('retry_startup_delay')
     max_message_size = LaunchConfiguration('max_message_size')
@@ -19,7 +20,7 @@ def generate_launch_description():
     unregister_timeout = LaunchConfiguration('unregister_timeout')
     use_compression = LaunchConfiguration('use_compression')
     bson_only_mode = LaunchConfiguration('bson_only_mode')
-
+    
     declare_namespace_cmd = DeclareLaunchArgument(
         'namespace',
         default_value='',
@@ -34,6 +35,11 @@ def generate_launch_description():
         'port',
         default_value='9090',
         description='Websocket port')
+
+    declare_address_cmd = DeclareLaunchArgument(
+        'address',
+        default_value='0.0.0.0',
+        description='Websocket address')
     
     declare_retry_startup_delay_cmd = DeclareLaunchArgument(
         'retry_startup_delay',
@@ -78,6 +84,7 @@ def generate_launch_description():
         namespace=namespace,
         output='screen',
         parameters=[{'port': port,
+                    'address': address,
                      'retry_startup_delay': retry_startup_delay,
                      'max_message_size': max_message_size,
                      'fragment_timeout' : fragment_timeout,
@@ -90,6 +97,7 @@ def generate_launch_description():
         declare_namespace_cmd,
         declare_use_namespace_cmd,
         declare_port_cmd,
+        declare_address_cmd,
         declare_retry_startup_delay_cmd,
         declare_max_message_size_cmd,
         declare_bson_only_mode_cmd,
