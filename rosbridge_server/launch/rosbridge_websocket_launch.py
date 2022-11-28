@@ -13,7 +13,7 @@ def generate_launch_description():
     use_namespace = LaunchConfiguration('use_namespace')
     port = LaunchConfiguration('port')
     retry_startup_delay = LaunchConfiguration('retry_startup_delay')
-    max_message_size = LaunchConfiguration('LaunchConfiguration')
+    max_message_size = LaunchConfiguration('max_message_size')
     declare_namespace_cmd = DeclareLaunchArgument(
         'namespace',
         default_value='',
