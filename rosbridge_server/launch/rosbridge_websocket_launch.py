@@ -1,12 +1,12 @@
 import os
-from ament_index_python.packages import get_package_share_directory
 
+from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, GroupAction, DeclareLaunchArgument
-from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch_ros.actions import Node
-from launch.substitutions import LaunchConfiguration
+from launch.actions import DeclareLaunchArgument, GroupAction, IncludeLaunchDescription
 from launch.conditions import IfCondition
+from launch.substitutions import LaunchConfiguration
+from launch_ros.actions import Node
+
 
 def generate_launch_description():
     namespace = LaunchConfiguration('namespace')
@@ -63,7 +63,7 @@ def generate_launch_description():
 
     declare_delay_between_messages_cmd = DeclareLaunchArgument(
         'delay_between_messages',
-        default_value='10000000',
+        default_value='0',
         description="delay_between_messages")
 
     declare_use_compression_cmd = DeclareLaunchArgument(
