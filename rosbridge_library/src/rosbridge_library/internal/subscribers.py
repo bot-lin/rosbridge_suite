@@ -222,7 +222,6 @@ class MultiSubscriber:
             # Pass the JSON to each of the callbacks
             for callback in callbacks:
                 try:
-                    print(type(outgoing))
                     callback(outgoing)
                 except Exception as exc:
                     # Do nothing if one particular callback fails except log it
