@@ -33,8 +33,10 @@
 
 import fnmatch
 
+from geometry_msgs.msg import PoseStamped
 from rosbridge_library.capability import Capability
 from rosbridge_library.internal.publishers import manager
+from rosbridge_library.internal.robot_navigator import BasicNavigator
 
 
 class Publish(Capability):
@@ -81,30 +83,53 @@ class Publish(Capability):
                 return
         else:
             self.protocol.log("debug", "No topic security glob, not checking publish.")
+        if topic == "/navigate_to_pose/goal":
+            self.protocol.log("warn", "000000000000000")
 
+            navigator = BasicNavigator(self.protocol.node_handle)
+            navigator.waitUntilNav2Active()
+            goal_msg = message.get("msg", {})
+            target_pose = goal_msg['goal']['target_pose']
+            self.protocol.log(
+                    "warn", "message: {}".format(target_pose)
+                )
+            goal_pose = PoseStamped()
+            goal_pose.header.frame_id = 'map'
+            goal_pose.header.stamp = navigator.node_handle.get_clock().now().to_msg()
+            goal_pose.pose.position.x = float(target_pose['pose']['position']['x'])
+            goal_pose.pose.position.y = float(target_pose['pose']['position']['y'])
+            goal_pose.pose.position.z = float(target_pose['pose']['position']['z'])
+            goal_pose.pose.orientation.x = float(target_pose['pose']['orientation']['x'])
+            goal_pose.pose.orientation.y = float(target_pose['pose']['orientation']['y'])
+            goal_pose.pose.orientation.z = float(target_pose['pose']['orientation']['z'])
+            goal_pose.pose.orientation.w = float(target_pose['pose']['orientation']['w'])
+ 
+            # Go to the goal pose
+            navigator.goToPose(goal_pose)
         # Register as a publishing client, propagating any exceptions
-        client_id = self.protocol.client_id
-        manager.register(
-            client_id,
-            topic,
-            self.protocol.node_handle,
-            latch=latch,
-            queue_size=queue_size,
-        )
-        self._published[topic] = True
+        else:
+            client_id = self.protocol.client_id
+            manager.register(
+                client_id,
+                topic,
+                self.protocol.node_handle,
+                latch=latch,
+                queue_size=queue_size,
+            )
+            self._published[topic] = True
 
-        # Get the message if one was provided
-        msg = message.get("msg", {})
+            # Get the message if one was provided
+            msg = message.get("msg", {})
 
-        # Publish the message
-        manager.publish(
-            client_id,
-            topic,
-            msg,
-            self.protocol.node_handle,
-            latch=latch,
-            queue_size=queue_size,
-        )
+            # Publish the message
+            manager.publish(
+                client_id,
+                topic,
+                msg,
+                self.protocol.node_handle,
+                latch=latch,
+                queue_size=queue_size,
+            )
 
     def finish(self):
         client_id = self.protocol.client_id
