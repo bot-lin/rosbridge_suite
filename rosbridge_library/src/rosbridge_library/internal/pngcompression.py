@@ -50,7 +50,7 @@ def encode(string):
     buff = BytesIO()
     i.save(buff, "png")
     encoded = standard_b64encode(buff.getvalue())
-    return encoded
+    return encoded.decode('utf-8')
 
 
 def decode(string):
