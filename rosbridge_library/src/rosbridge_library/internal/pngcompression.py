@@ -46,7 +46,7 @@ def encode(string):
     while length < bytes_needed:
         string += "\n"
         length += 1
-    i = Image.frombytes("RGB", (int(width), int(height)), string.encode())
+    i = Image.frombytes("RGB", (int(width), int(height)), string.encode('utf-8'))
     buff = BytesIO()
     i.save(buff, "png")
     encoded = standard_b64encode(buff.getvalue())
