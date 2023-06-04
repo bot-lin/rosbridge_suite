@@ -20,11 +20,17 @@ def generate_launch_description():
     unregister_timeout = LaunchConfiguration('unregister_timeout')
     use_compression = LaunchConfiguration('use_compression')
     bson_only_mode = LaunchConfiguration('bson_only_mode')
+    topics_glob = LaunchConfiguration('topics_glob')
     
     declare_namespace_cmd = DeclareLaunchArgument(
         'namespace',
         default_value='',
         description='Top-level namespace')
+    
+    declare_topics_glob_cmd = DeclareLaunchArgument(
+        'topics_glob',
+        default_value='robot_pose',
+        description='topics_glob')
 
     declare_use_namespace_cmd = DeclareLaunchArgument(
         'use_namespace',
@@ -68,14 +74,13 @@ def generate_launch_description():
 
     declare_use_compression_cmd = DeclareLaunchArgument(
         'use_compression',
-        default_value='false',
+        default_value='true',
         description="use_compression")
 
     declare_bson_only_mode_cmd = DeclareLaunchArgument(
         'bson_only_mode',
         default_value='false',
         description="bson_only_mode")
-
 
     start_websocket_cmd = Node(
         package='rosbridge_server',
@@ -91,7 +96,8 @@ def generate_launch_description():
                      'delay_between_messages' : delay_between_messages,
                      'unregister_timeout' : unregister_timeout,
                      'use_compression': use_compression,
-                     'bson_only_mode' : bson_only_mode}])
+                     'bson_only_mode' : bson_only_mode,
+                     'topics_glob' : topics_glob}])
     
     return LaunchDescription([
         declare_namespace_cmd,
@@ -105,5 +111,6 @@ def generate_launch_description():
         declare_delay_between_messages_cmd,
         declare_unregister_timeout_cmd,
         declare_fragment_timeout_cmd,
-        start_websocket_cmd
+        declare_topics_glob_cmd,
+        start_websocket_cmd,
     ])
