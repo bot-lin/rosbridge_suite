@@ -49,13 +49,15 @@ class CallService(Capability):
     services_glob = None
 
     def __init__(self, protocol):
-        # Call superclas constructor
+        # Call superclass constructor
         Capability.__init__(self, protocol)
 
         # Register the operations that this capability provides
-        call_services_in_new_thread = protocol.node_handle.get_parameter(
-            "call_services_in_new_thread"
-        ).get_parameter_value()
+        call_services_in_new_thread = (
+            protocol.node_handle.get_parameter("call_services_in_new_thread")
+            .get_parameter_value()
+            .bool_value
+        )
         if call_services_in_new_thread:
             # Calls the service in a separate thread so multiple services can be processed simultaneously.
             protocol.node_handle.get_logger().info("Calling services in new thread")

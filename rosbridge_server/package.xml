@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>rosbridge_server</name>
-  <version>1.3.1</version>
+  <version>1.3.2</version>
   <description>A WebSocket interface to rosbridge.</description>
 
   <license>BSD</license>
@@ -24,6 +24,7 @@
   <exec_depend>rosbridge_msgs</exec_depend>
   <exec_depend>rosapi</exec_depend>
 
+  <test_depend>example_interfaces</test_depend>
   <test_depend>python3-autobahn</test_depend>
   <test_depend>launch</test_depend>
   <test_depend>launch_ros</test_depend>

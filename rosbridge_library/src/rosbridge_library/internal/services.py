@@ -30,9 +30,14 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+import time
 from threading import Thread
+from typing import Any, Callable, Optional
 
+import rclpy
+from rclpy.callback_groups import ReentrantCallbackGroup
 from rclpy.expand_topic_name import expand_topic_name
+from rclpy.node import Node
 from rosbridge_library.internal.message_conversion import (
     extract_values,
     populate_instance,
@@ -44,12 +49,19 @@ from rosbridge_library.internal.ros_loader import (
 
 
 class InvalidServiceException(Exception):
-    def __init__(self, servicename):
-        Exception.__init__(self, "Service %s does not exist" % servicename)
+    def __init__(self, service_name) -> None:
+        Exception.__init__(self, f"Service {service_name} does not exist")
 
 
 class ServiceCaller(Thread):
-    def __init__(self, service, args, success_callback, error_callback, node_handle):
+    def __init__(
+        self,
+        service: str,
+        args: dict,
+        success_callback: Callable[[str, str, int, bool, Any], None],
+        error_callback: Callable[[str, str, Exception], None],
+        node_handle: Node,
+    ) -> None:
         """Create a service caller for the specified service.  Use start()
         to start in a separate thread or run() to run in this thread.
 
@@ -63,7 +75,7 @@ class ServiceCaller(Thread):
         service call
         error_callback   -- a callback to call if an error occurs.  The
         callback will be passed the exception that caused the failure
-        node_handle      -- a ROS2 node handle to call services.
+        node_handle      -- a ROS 2 node handle to call services.
         """
         Thread.__init__(self)
         self.daemon = True
@@ -73,16 +85,16 @@ class ServiceCaller(Thread):
         self.error = error_callback
         self.node_handle = node_handle
 
-    def run(self):
+    def run(self) -> None:
         try:
             # Call the service and pass the result to the success handler
-            self.success(call_service(self.node_handle, self.service, self.args))
+            self.success(call_service(self.node_handle, self.service, args=self.args))
         except Exception as e:
             # On error, just pass the exception to the error handler
             self.error(e)
 
 
-def args_to_service_request_instance(service, inst, args):
+def args_to_service_request_instance(service: str, inst: Any, args: dict) -> Any:
     """Populate a service request instance with the provided args
 
     args can be a dictionary of values, or a list, or None
@@ -98,11 +110,15 @@ def args_to_service_request_instance(service, inst, args):
     populate_instance(msg, inst)
 
 
-def call_service(node_handle, service, args=None):
+def call_service(
+    node_handle: Node,
+    service: str,
+    args: Optional[dict] = None,
+    server_timeout_time: float = 1.0,
+    sleep_time: float = 0.001,
+) -> dict:
     # Given the service name, fetch the type and class of the service,
     # and a request instance
-
-    # This should be equivalent to rospy.resolve_name.
     service = expand_topic_name(service, node_handle.get_name(), node_handle.get_namespace())
 
     service_names_and_types = dict(node_handle.get_service_names_and_types())
@@ -120,9 +136,15 @@ def call_service(node_handle, service, args=None):
     # Populate the instance with the provided args
     args_to_service_request_instance(service, inst, args)
 
-    client = node_handle.create_client(service_class, service)
+    client = node_handle.create_client(
+        service_class, service, callback_group=ReentrantCallbackGroup()
+    )
+    client.wait_for_service(server_timeout_time)
 
-    result = client.call(inst)
+    future = client.call_async(inst)
+    while rclpy.ok() and not future.done():
+        time.sleep(sleep_time)
+    result = future.result()
 
     node_handle.destroy_client(client)
     if result is not None:
