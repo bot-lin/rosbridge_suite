@@ -227,6 +227,7 @@ class RosbridgeWebsocketNode(Node):
             for element in topics_glob[1:-1].split(",")
             if len(element.strip().strip("'")) > 0
         ]
+        print(RosbridgeWebSocket.topics_glob)
         RosbridgeWebSocket.services_glob = [
             element.strip().strip("'")
             for element in services_glob[1:-1].split(",")
